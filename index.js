@@ -1,9 +1,19 @@
 const express = require('express')
 const app = express()
 const port = 5000
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+//app.use(express.json()) //For JSON requests
+//app.use(express.urlencoded({extended: true}));
+
+const config = require('./config/key');
+
+const { User } = require("./models/User");
 
 const mongoose = require('mongoose')
-mongoose.connect('mongodb+srv://matrix:kLHboHVNhKQqf3ss@cluster0.pm2if.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
+mongoose.connect(config.mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
   //, useCreateIndex: true,
@@ -13,7 +23,17 @@ mongoose.connect('mongodb+srv://matrix:kLHboHVNhKQqf3ss@cluster0.pm2if.mongodb.n
 
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send('Hello World!! ')
+})
+
+
+app.post('/register', (req, res)=>{
+  const user = new User(req.body);
+
+  user.save((err, userInfo)=>{
+    if(err) return res.json({ success: false, err})
+    return res.status(200).json({ success: true})
+  })
 })
 
 app.listen(port, () => {
